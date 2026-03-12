@@ -34,15 +34,13 @@ class MainActivity : AppCompatActivity() {
         lblFecha.text = fechaActual.replaceFirstChar { it.uppercase() } //Primera letra capitalizada
 
 
-        //*******CARDS******//
+        //*******CLASES******//
 
         //Crear la card grande de sección
         val cardSeccion = layoutInflater.inflate(R.layout.card_clases, containerClase, false)
 
         //Obtener el contenedor interno donde van las clases
         val containerClases = cardSeccion.findViewById<LinearLayout>(R.id.containerClases)
-
-
         //LISTA DE CLASES
         val clases = listOf(
             Triple("Calculo multivariable", "Prof. Ibarra", "8:00 AM"),
@@ -51,26 +49,46 @@ class MainActivity : AppCompatActivity() {
             Triple("Redes", "Prof. Garcia", "2:00 PM"),
             Triple("Bases de datos", "Prof. Mendoza", "4:00 PM")
         )
-
-
         //CREAR LAS CARDS AUTOMATICAMENTE
         for (clase in clases) {
-
             val card = layoutInflater.inflate(R.layout.card_clase, containerClases, false)
-
             val titulo = card.findViewById<TextView>(R.id.txtMateria)
             val profesor = card.findViewById<TextView>(R.id.txtProfesor)
             val hora = card.findViewById<TextView>(R.id.txtHora)
-
             titulo.text = clase.first
             profesor.text = clase.second
             hora.text = clase.third
-
             containerClases.addView(card)
         }
+        //******RECORDATORIOS*******//
+        //Crear la card grande de sección
+        val cardRecordatorios = layoutInflater.inflate(R.layout.card_recordatorios, containerClase, false)
+        //Obtener el contenedor interno donde van los recordatorios
+        val containerRecordatorios = cardRecordatorios.findViewById<LinearLayout>(R.id.containerRecordatorios)
+        //LISTA DE RECORDATORIOS
+        val recordatorios = listOf(
+            Pair("Recordatorio 1", "12:00 PM"),
+            Pair("Recordatorio 2", "1:00 PM"),
+            Pair("Recordatorio 3", "2:00 PM"),
+            Pair("Recordatorio 4", "3:00 PM"),
 
-
-        //Agregar la card grande a la pantalla
+        )
+        //CREAR LOS RECORDATORIOS AUTOMATICAMENTE
+        for (recordatorio in recordatorios) {
+            val card = layoutInflater.inflate(
+                R.layout.card_recordatorio,
+                containerRecordatorios,
+                false
+            )
+            val titulo = card.findViewById<TextView>(R.id.txtTituloRecordatorio)
+            val fecha = card.findViewById<TextView>(R.id.txtFechaRecordatorio)
+            titulo.text = recordatorio.first
+            fecha.text = recordatorio.second
+            containerRecordatorios.addView(card)
+        }
+        //Agregar la card RECORDATORIOS a la pantalla
+        containerClase.addView(cardRecordatorios)
+        //Agregar la card CLASES a la pantalla
         containerClase.addView(cardSeccion)
     }
 }
