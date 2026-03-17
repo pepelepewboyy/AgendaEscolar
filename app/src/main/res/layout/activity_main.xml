@@ -2,17 +2,18 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
+    android:id="@+id/main_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity">
+
     <!-- CONTENIDO SCROLLEABLE -->
     <ScrollView
         android:id="@+id/scrollContenido"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginBottom="8dp"
-        app:layout_constraintBottom_toTopOf="@id/panelBotones"
+        app:layout_constraintBottom_toTopOf="@id/bottom_navigation"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -20,7 +21,6 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-
             android:orientation="vertical">
 
             <LinearLayout
@@ -29,7 +29,8 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:gravity="center"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                tools:ignore="UselessParent">
 
                 <TextView
                     android:id="@+id/lbltitulo"
@@ -37,23 +38,17 @@
                     android:layout_height="52dp"
                     android:layout_marginTop="32dp"
                     android:fontFamily="@font/alatsi"
-                    android:text="Agenda Escolar"
+                    android:text="@string/app_name"
                     android:textAlignment="center"
-                    android:textSize="34sp"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    android:textSize="34sp" />
 
                 <TextView
                     android:id="@+id/lblFecha"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/advent_pro"
-                    android:text="Fecha"
-                    android:textSize="20sp"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/lbltitulo" />
+                    android:text="@string/txt_date"
+                    android:textSize="20sp" />
 
                 <LinearLayout
                     android:id="@+id/containerClase"
@@ -62,150 +57,20 @@
                     android:layout_marginStart="20dp"
                     android:layout_marginTop="44dp"
                     android:layout_marginEnd="20dp"
-                    android:orientation="vertical"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/lblFecha" />
+                    android:orientation="vertical" />
 
             </LinearLayout>
         </LinearLayout>
 
     </ScrollView>
 
-    <LinearLayout
-        android:id="@+id/panelBotones"
+    <include
+        android:id="@+id/bottom_navigation"
+        layout="@layout/navigation_bar"
         android:layout_width="0dp"
-        android:layout_height="70dp"
-        android:background="#F5F5F5"
-        android:orientation="horizontal"
-        android:gravity="center"
-        android:weightSum="5"
+        android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
-
-        <!-- BOTON INICIO -->
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            android:gravity="center">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/free_regular"
-                android:text="&#xf015;"
-                android:textSize="20sp"/>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Inicio"
-                android:textSize="12sp"
-                android:fontFamily="@font/advent_pro"/>
-
-        </LinearLayout>
-
-        <!-- BOTON CLASES -->
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            android:gravity="center">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/free_solid"
-                android:text="&#xf02d;"
-                android:textSize="20sp" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Clases"
-                android:textSize="12sp"
-                android:fontFamily="@font/advent_pro"/>
-
-        </LinearLayout>
-
-        <!-- BOTON MENSAJES -->
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            android:gravity="center">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/free_regular"
-                android:text="&#xf075;"
-                android:textSize="20sp"/>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Mensajes"
-                android:textSize="12sp"
-                android:fontFamily="@font/advent_pro"/>
-
-        </LinearLayout>
-
-        <!-- BOTON ASISTENCIA -->
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            android:gravity="center">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/free_regular"
-                android:text="&#xf133;"
-                android:textSize="20sp"/>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Asistencia"
-                android:textSize="12sp"
-                android:fontFamily="@font/advent_pro"/>
-
-        </LinearLayout>
-
-        <!-- BOTON CONFIG -->
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            android:gravity="center">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/free_solid"
-                android:text="&#xf013;"
-                android:textSize="20sp" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Config"
-                android:textSize="12sp"
-                android:fontFamily="@font/advent_pro"/>
-
-        </LinearLayout>
-
-    </LinearLayout>
-
-
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

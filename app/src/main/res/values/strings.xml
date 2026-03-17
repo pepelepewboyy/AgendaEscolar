@@ -1,3 +1,20 @@
 <resources>
-    <string name="app_name">AgendaEscolar</string>
+    <string name="app_name">Agenda Escolar</string>
+    <string name="ic_house" translatable="false">&#xf015;</string>
+    <string name="txt_house">Inicio</string>
+    <string name="ic_classes">&#xf02d;</string>
+    <string name="txt_classes">Clases</string>
+    <string name="ic_messages">&#xf075;</string>
+    <string name="txt_messages">Mensajes</string>
+    <string name="ic_attendance">&#xf133;</string>
+    <string name="txt_attendance">Asistencia</string>
+    <string name="ic_config">&#xf013;</string>
+    <string name="txt_config">Config</string>
+    <string name="txt_myAgenda">Mi Agenda</string>
+    <string name="txt_date">Fecha</string>
+
+
+
+
+
 </resources>
