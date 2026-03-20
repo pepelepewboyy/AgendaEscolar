@@ -13,12 +13,10 @@
     <string name="txt_myAgenda">Mi Agenda</string>
     <string name="txt_date">Fecha</string>
     <string name="txt_selectDate">Seleccionar fecha:</string>
-    <string name="txt_contentDescription">Agregar tarea</string>
+    <string name="txt_contentDescription">Agregar clase</string>
 
-
-
-
-
-
-
+    <string name="dialog_registrar_clase_title">Registrar clase</string>
+    <string name="dialog_guardar">Guardar</string>
+    <string name="dialog_cancelar">Cancelar</string>
+    <string name="error_campos_obligatorios">Completa todos los campos para registrar la clase.</string>
 </resources>
