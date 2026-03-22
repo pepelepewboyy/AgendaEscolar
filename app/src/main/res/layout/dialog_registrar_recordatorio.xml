@@ -1,0 +1,44 @@
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="8dp">
+
+
+        <EditText
+            android:id="@+id/inputTituloRecordatorio"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_input_rounded"
+            android:fontFamily="@font/advent_pro"
+            android:hint="@string/hint_titulo_recordatorio"
+            android:inputType="textCapSentences"
+            android:padding="12dp" />
+
+        <EditText
+            android:id="@+id/inputFechaRecordatorio"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_input_rounded"
+            android:fontFamily="@font/advent_pro"
+            android:hint="Fecha"
+            android:focusable="false"
+            android:padding="12dp"/>
+
+        <EditText
+            android:id="@+id/inputHoraRecordatorio"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_input_rounded"
+            android:fontFamily="@font/advent_pro"
+            android:hint="Hora"
+            android:focusable="false"
+            android:padding="12dp"/>
+
+    </LinearLayout>
+</ScrollView>

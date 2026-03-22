@@ -28,19 +28,30 @@
         <!-- TEXTO -->
         <TextView
             android:id="@+id/txtTituloRecordatorio"
-            android:layout_width="0dp"
+            android:layout_width="100dp"
             android:layout_height="wrap_content"
+            android:layout_marginEnd="20dp"
             android:layout_weight="1"
+            android:fontFamily="@font/alatsi"
             android:text="recordatorio"
-            android:textSize="18sp"
-            android:fontFamily="@font/alatsi"/>
+            android:textSize="18sp" />
 
         <!-- FECHA -->
+        <!-- HORA -->
         <TextView
             android:id="@+id/txtFechaRecordatorio"
+            android:layout_width="70dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="20dp"
+            android:fontFamily="@font/advent_pro"
+            android:text="fecha"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/txtHoraRecordatorio"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="fecha"
+            android:text="hora"
             android:textSize="16sp"
             android:fontFamily="@font/advent_pro"/>
 
