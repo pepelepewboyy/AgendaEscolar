@@ -19,6 +19,15 @@
             android:hint="@string/hint_titulo_recordatorio"
             android:inputType="textCapSentences"
             android:padding="12dp" />
+        <Spinner
+        android:id="@+id/inputPrioridad"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_input_rounded"
+        android:fontFamily="@font/advent_pro"
+        android:hint="@string/hint_prioridad"
+        android:inputType="textCapSentences"
+        android:padding="12dp" />
 
         <EditText
             android:id="@+id/inputFechaRecordatorio"

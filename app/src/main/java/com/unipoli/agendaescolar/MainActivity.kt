@@ -1,23 +1,38 @@
 package com.unipoli.agendaescolar
 
+import com.unipoli.agendaescolar.data.RecordatorioRoomDatabase
+import com.unipoli.agendaescolar.data.Recordatorio
+import com.unipoli.agendaescolar.data.RecordatorioDao
+
 import android.annotation.SuppressLint
 import android.os.Bundle
+
 import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
-import android.app.TimePickerDialog as TimePickerDilog
+import android.widget.ArrayAdapter
+import android.widget.Spinner
+
+
 import android.app.DatePickerDialog
+import android.app.TimePickerDialog
+
+
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
+
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
+
 
 class MainActivity : AppCompatActivity() {
     @SuppressLint("CutPasteId")
@@ -98,32 +113,72 @@ class MainActivity : AppCompatActivity() {
         }
         contenedorDestino.addView(cardSeccion)
     }
-
     private fun cargarRecordatorios(contenedorDestino: LinearLayout) {
-        val cardRecordatorios = layoutInflater.inflate(R.layout.card_recordatorios, contenedorDestino, false)
-        val btnAddRecordatorio= cardRecordatorios.findViewById<TextView>(R.id.btnAddRecordatorio)
-        val containerRecordatorios = cardRecordatorios.findViewById<LinearLayout>(R.id.containerRecordatorios)
 
-        btnAddRecordatorio?.setOnClickListener {
+        val cardRecordatorios = layoutInflater.inflate(
+            R.layout.card_recordatorios,
+            contenedorDestino,
+            false
+        )
+
+        val containerRecordatorios = cardRecordatorios.findViewById<LinearLayout>(R.id.containerRecordatorios)
+        val btnAddRecordatorio = cardRecordatorios.findViewById<TextView>(R.id.btnAddRecordatorio)
+
+        contenedorDestino.removeAllViews()
+        contenedorDestino.addView(cardRecordatorios)
+
+        val db = RecordatorioRoomDatabase.getDatabase(this)
+        val dao = db.recordatorioDao()
+
+        // 🔥 FUNCIÓN INTERNA PARA RENDERIZAR
+        fun render(lista: List<Recordatorio>) {
+            containerRecordatorios.removeAllViews()
+
+            lista.forEach { recordatorio ->
+                val card = layoutInflater.inflate(
+                    R.layout.card_recordatorio,
+                    containerRecordatorios,
+                    false
+                )
+
+                card.findViewById<TextView>(R.id.txtTituloRecordatorio).text = recordatorio.titulo
+                card.findViewById<TextView>(R.id.txtFechaRecordatorio).text = recordatorio.fecha
+                card.findViewById<TextView>(R.id.txtHoraRecordatorio).text = recordatorio.hora
+
+                containerRecordatorios.addView(card)
+            }
+        }
+
+        // 🔥 CARGA INICIAL
+        lifecycleScope.launch {
+            val lista = dao.getAllRecordatorios()
+            render(lista)
+        }
+
+        // 🔥 BOTÓN
+        btnAddRecordatorio.setOnClickListener {
+
             val dialogView = layoutInflater.inflate(R.layout.dialog_registrar_recordatorio, null)
+
             val edtTitulo = dialogView.findViewById<EditText>(R.id.inputTituloRecordatorio)
             val edtHora = dialogView.findViewById<EditText>(R.id.inputHoraRecordatorio)
             val edtFecha = dialogView.findViewById<EditText>(R.id.inputFechaRecordatorio)
+            val edtPrioridad = dialogView.findViewById<Spinner>(R.id.inputPrioridad)
+
             val calendar = Calendar.getInstance()
+
             edtFecha.inputType = 0
             edtFecha.isFocusable = false
-            edtHora.inputType =0
+            edtHora.inputType = 0
             edtHora.isFocusable = false
 
             edtFecha.setOnClickListener {
                 val datePicker = DatePickerDialog(
                     this,
-                    { _, year, month, dayOfMonth ->
-                        val fechaFormateada =
-                            String.format("%02d/%02d/%04d", dayOfMonth, month + 1, year)
-                        edtFecha.setText(fechaFormateada)
-
-                        calendar.set(year, month, dayOfMonth)
+                    { _, year, month, day ->
+                        val fecha = String.format("%02d/%02d/%04d", day, month + 1, year)
+                        edtFecha.setText(fecha)
+                        calendar.set(year, month, day)
                     },
                     calendar.get(Calendar.YEAR),
                     calendar.get(Calendar.MONTH),
@@ -131,23 +186,25 @@ class MainActivity : AppCompatActivity() {
                 )
                 datePicker.show()
             }
-            edtHora.setOnClickListener {
-                val horaActual = calendar.get(Calendar.HOUR_OF_DAY)
-                val minutoActual = calendar.get(Calendar.MINUTE)
 
-                val timePicker = TimePickerDilog(
+            edtHora.setOnClickListener {
+                val timePicker = TimePickerDialog(
                     this,
-                    { _, hourOfDay, minute ->
-                        val horaFormateada = String.format("%02d:%02d", hourOfDay, minute)
-                        edtHora.setText(horaFormateada)
+                    { _, hour, minute ->
+                        val hora = String.format("%02d:%02d", hour, minute)
+                        edtHora.setText(hora)
                     },
-                    horaActual,
-                    minutoActual,
+                    calendar.get(Calendar.HOUR_OF_DAY),
+                    calendar.get(Calendar.MINUTE),
                     true
                 )
                 timePicker.show()
             }
 
+            val opciones = listOf("Selecciona la prioridad", "Alta", "Media", "Baja")
+            val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, opciones)
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            edtPrioridad.adapter = adapter
 
             val dialog = AlertDialog.Builder(this)
                 .setTitle("Registrar Recordatorio")
@@ -155,44 +212,43 @@ class MainActivity : AppCompatActivity() {
                 .setPositiveButton("Guardar", null)
                 .setNegativeButton("Cancelar", null)
                 .create()
+
             dialog.show()
 
             dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+
                 val titulo = edtTitulo.text.toString().trim()
                 val hora = edtHora.text.toString().trim()
                 val fecha = edtFecha.text.toString().trim()
+                val prioridad = edtPrioridad.selectedItem.toString()
 
+                if (titulo.isNotEmpty() && hora.isNotEmpty() && fecha.isNotEmpty() && edtPrioridad.selectedItemPosition > 0) {
 
-                if (titulo.isNotEmpty() && hora.isNotEmpty()) {
-                    val nuevoCard = layoutInflater.inflate(R.layout.card_recordatorio, containerRecordatorios, false)
-                    nuevoCard.findViewById<TextView>(R.id.txtTituloRecordatorio)?.text = titulo
-                    nuevoCard.findViewById<TextView>(R.id.txtFechaRecordatorio)?.text = fecha
-                    nuevoCard.findViewById<TextView>(R.id.txtHoraRecordatorio)?.text = hora
-                    containerRecordatorios.addView(nuevoCard)
+                    val recordatorio = Recordatorio(
+                        titulo = titulo,
+                        fecha = fecha,
+                        hora = hora,
+                        prioridad = prioridad
+                    )
+
+                    lifecycleScope.launch {
+                        dao.insertRecordatorio(recordatorio)
+
+                        // 🔥 RECARGAR DESDE BD
+                        val lista = dao.getAllRecordatorios()
+                        render(lista)
+                    }
+
                     dialog.dismiss()
+
                 } else {
-                    Toast.makeText(this, "Por favor, complete todos los campos", Toast.LENGTH_SHORT)
-                        .show()
+                    Toast.makeText(
+                        this,
+                        "Completa todos los campos",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
         }
-
-        val recordatorios = listOf(
-            Triple("Recordatorio 1", "12:00 PM", "dd00"),
-            Triple("Recordatorio 2", "1:00 PM", "dd00"),
-            Triple("Recordatorio 3", "2:00 PM", "dd00"),
-            Triple("Recordatorio 4", "3:00 PM", "dd00")
-        )
-
-        if (containerRecordatorios != null) {
-            for (recordatorio in recordatorios) {
-                val card = layoutInflater.inflate(R.layout.card_recordatorio, containerRecordatorios, false)
-                card.findViewById<TextView>(R.id.txtTituloRecordatorio)?.text = recordatorio.first
-                card.findViewById<TextView>(R.id.txtHoraRecordatorio)?.text = recordatorio.second
-                card.findViewById<TextView>(R.id.txtFechaRecordatorio)?.text = recordatorio.third
-                containerRecordatorios.addView(card)
-            }
-        }
-        contenedorDestino.addView(cardRecordatorios)
     }
 }

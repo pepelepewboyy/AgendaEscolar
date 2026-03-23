@@ -5,8 +5,8 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 
-@Entity(tableName = "recordatorios")
-data class Recordatorio(
+@Entity(tableName = "Clases")
+data class Clases(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
 

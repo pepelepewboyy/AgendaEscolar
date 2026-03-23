@@ -18,7 +18,16 @@ interface RecordatorioDao {
     suspend fun updateRecordatorio(recordatorio: Recordatorio)
     @Delete
     suspend fun deleteRecordatorio(recordatorio: Recordatorio)
-    @Query("SELECT * FROM recordatorios")
-    suspend fun getAllRecordatorios(): List<Recordatorio>
 
+    @Query("""
+        SELECT * FROM recordatorios
+        ORDER BY
+            CASE prioridad
+                WHEN 'Alta' THEN 1
+                WHEN 'Media' THEN 2
+                WHEN 'Baja' THEN 3
+                ELSE 4
+            END
+    """)
+    suspend fun getAllRecordatorios(): List<Recordatorio>
 }

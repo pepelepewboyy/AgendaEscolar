@@ -24,6 +24,7 @@
 
     <string name="hint_titulo_recordatorio">Título del recordatorio</string>
     <string name="hint_hora_recordatorio">Hora del recordatorio</string>
+    <string name="hint_prioridad">Recordatorio</string>
 
     <string name="error_campos_obligatorios">Completa todos los campos para continuar.</string>
     <string name="mensaje_clase_guardada">Clase guardada correctamente.</string>
