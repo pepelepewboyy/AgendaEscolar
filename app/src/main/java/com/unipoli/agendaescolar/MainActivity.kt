@@ -2,7 +2,9 @@ package com.unipoli.agendaescolar
 
 import com.unipoli.agendaescolar.data.RecordatorioRoomDatabase
 import com.unipoli.agendaescolar.data.Recordatorio
-import com.unipoli.agendaescolar.data.RecordatorioDao
+import com.unipoli.agendaescolar.data.Clase
+import com.unipoli.agendaescolar.data.ClasesRoomDatabase
+
 
 import android.annotation.SuppressLint
 import android.os.Bundle
@@ -26,6 +28,7 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.coroutines.launch
 
 import java.text.SimpleDateFormat
@@ -54,6 +57,10 @@ class MainActivity : AppCompatActivity() {
         //*******DECLARACION DE VARIABLES (PANTALLA)*******//
         val lblFecha = findViewById<TextView>(R.id.lblFecha)
         val containerClase = findViewById<LinearLayout>(R.id.containerClase)
+        val fab = findViewById<FloatingActionButton>(R.id.btnAddClase)
+        fab?.setOnClickListener {
+            abrirDialogo()
+        }
 
         //*******Obtener fecha*******//
         val formato = SimpleDateFormat("EEEE, d 'de' MMMM 'de' yyyy", Locale("es", "ES"))
@@ -78,6 +85,10 @@ class MainActivity : AppCompatActivity() {
                 containerClase.addView(viewAgenda)
 
                 val dynamicContainer = viewAgenda.findViewById<LinearLayout>(R.id.dynamicContainer)
+                val fab = viewAgenda.findViewById<FloatingActionButton>(R.id.btnAddClase)
+                fab.setOnClickListener {
+
+                }
 
                 if (dynamicContainer != null) {
                     cargarClasesEn(dynamicContainer)
@@ -91,6 +102,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun cargarClasesEn(contenedorDestino: LinearLayout) {
+        val btnAddClase = contenedorDestino.findViewById<TextView>(R.id.btnAddClase)
+        btnAddClase?.setOnClickListener {
+            abrirDialogo()
+        }
         val cardSeccion = layoutInflater.inflate(R.layout.card_clases, contenedorDestino, false)
         val containerClases = cardSeccion.findViewById<LinearLayout>(R.id.containerClases)
 
@@ -129,8 +144,6 @@ class MainActivity : AppCompatActivity() {
 
         val db = RecordatorioRoomDatabase.getDatabase(this)
         val dao = db.recordatorioDao()
-
-        // 🔥 FUNCIÓN INTERNA PARA RENDERIZAR
         fun render(lista: List<Recordatorio>) {
             containerRecordatorios.removeAllViews()
 
@@ -251,4 +264,47 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
+    private fun abrirDialogo(){
+        val db = ClasesRoomDatabase.getDatabase(this)
+        val dao = db.clasesDao()
+
+        val dialogView = layoutInflater.inflate(R.layout.dialog_registrar_clase, null)
+        val dialog = AlertDialog.Builder(this)
+            .setTitle("Registrar Clase")
+            .setView(dialogView)
+            .setPositiveButton("Guardar", null)
+            .setNegativeButton("Cancelar", null)
+            .create()
+        dialog.show()
+
+        val edtMateria = dialogView.findViewById<EditText>(R.id.inputNombreClase)
+        val edtDocente = dialogView.findViewById<EditText>(R.id.inputDocente)
+
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+            val docente = edtDocente.text.toString().trim()
+            val clase = edtMateria.text.toString().trim()
+
+            if (clase.isNotEmpty() && docente.isNotEmpty()) {
+                val newclase = Clase(
+                    titulo = clase,
+                    profesor = docente
+                )
+                lifecycleScope.launch {
+                    dao.insertclase(newclase)
+                }
+
+                dialog.dismiss()
+            } else {
+                Toast.makeText(
+                    this,
+                    "Completa todos los campos",
+                    Toast.LENGTH_SHORT
+                ).show()
+
+            }
+
+        }
+
+    }
+
 }

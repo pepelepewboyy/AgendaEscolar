@@ -5,20 +5,15 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 
-@Entity(tableName = "Clases")
-data class Clases(
+@Entity(tableName = "clases")
+data class Clase(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
 
     @ColumnInfo(name = "titulo")
     val titulo: String,
 
-    @ColumnInfo(name="prioridad")
-    val prioridad: String,
+    @ColumnInfo(name = "profesor")
+    val profesor: String
 
-    @ColumnInfo(name = "fecha")
-    val fecha: String,
-
-    @ColumnInfo(name = "hora")
-    val hora: String
 )

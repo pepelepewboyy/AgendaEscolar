@@ -9,49 +9,27 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:padding="8dp">
-
         <EditText
             android:id="@+id/inputNombreClase"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="@drawable/bg_input_rounded"
+            android:fontFamily="@font/advent_pro"
             android:hint="Nombre de la clase"
             android:inputType="textCapWords"
-            android:background="@drawable/bg_input_rounded"
-            android:padding="12dp"
-            android:fontFamily="@font/advent_pro" />
+            android:padding="12dp" />
 
         <EditText
             android:id="@+id/inputDocente"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
+            android:background="@drawable/bg_input_rounded"
+            android:fontFamily="@font/advent_pro"
             android:hint="Docente"
             android:inputType="textCapWords"
-            android:background="@drawable/bg_input_rounded"
-            android:padding="12dp"
-            android:fontFamily="@font/advent_pro" />
+            android:padding="12dp" />
 
-        <EditText
-            android:id="@+id/inputDias"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:hint="Días (ej. Lunes y Miércoles)"
-            android:inputType="textCapSentences"
-            android:background="@drawable/bg_input_rounded"
-            android:padding="12dp"
-            android:fontFamily="@font/advent_pro" />
-
-        <EditText
-            android:id="@+id/inputHorario"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:hint="Horario (ej. 8:00 AM - 10:00 AM)"
-            android:inputType="text"
-            android:background="@drawable/bg_input_rounded"
-            android:padding="12dp"
-            android:fontFamily="@font/advent_pro" />
 
     </LinearLayout>
 </ScrollView>

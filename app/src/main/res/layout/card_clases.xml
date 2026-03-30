@@ -21,25 +21,38 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical">
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
 
             <TextView
                 android:layout_width="24dp"
                 android:layout_height="24dp"
+                android:layout_marginEnd="10dp"
                 android:fontFamily="@font/free_regular"
                 android:text="&#xf017;"
-                android:textSize="18sp"
                 android:textColor="#6B7280"
-                android:layout_marginEnd="10dp"/>
+                android:textSize="18sp" />
 
             <TextView
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:fontFamily="@font/alatsi"
                 android:text="Próximas Clases"
-                android:textSize="20sp"
-                android:fontFamily="@font/alatsi"/>
+                android:textSize="20sp" />
 
+            <TextView
+                android:id="@+id/btnAddClase"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:background="@drawable/bg_input_rounded"
+                android:clickable="true"
+                android:focusable="true"
+                android:fontFamily="@font/alatsi"
+                android:gravity="center"
+                android:text="+"
+                android:textColor="@android:color/black"
+                android:textSize="20sp" />
         </LinearLayout>
 
         <!-- CONTENEDOR DE TARJETAS -->
