@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/lbltitulo"
+            android:layout_width="wrap_content"
+            android:layout_height="52dp"
+            android:layout_marginTop="32dp"
+            android:layout_gravity="center"
+            android:fontFamily="@font/alatsi"
+            android:text="@string/app_name"
+            android:textAlignment="center"
+            android:textSize="34sp" />
+
+        <TextView
+            android:id="@+id/lblFecha"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:fontFamily="@font/advent_pro"
+            android:text="@string/txt_date"
+            android:textSize="20sp" />
+
+</LinearLayout>

@@ -24,42 +24,14 @@
             android:orientation="vertical">
 
             <LinearLayout
-                android:id="@+id/header"
+                android:id="@+id/containerClase"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:gravity="center"
-                android:orientation="vertical"
-                tools:ignore="UselessParent">
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="44dp"
+                android:layout_marginEnd="20dp"
+                android:orientation="vertical" />
 
-                <TextView
-                    android:id="@+id/lbltitulo"
-                    android:layout_width="wrap_content"
-                    android:layout_height="52dp"
-                    android:layout_marginTop="32dp"
-                    android:fontFamily="@font/alatsi"
-                    android:text="@string/app_name"
-                    android:textAlignment="center"
-                    android:textSize="34sp" />
-
-                <TextView
-                    android:id="@+id/lblFecha"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="@font/advent_pro"
-                    android:text="@string/txt_date"
-                    android:textSize="20sp" />
-
-                <LinearLayout
-                    android:id="@+id/containerClase"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="20dp"
-                    android:layout_marginTop="44dp"
-                    android:layout_marginEnd="20dp"
-                    android:orientation="vertical" />
-
-            </LinearLayout>
         </LinearLayout>
 
     </ScrollView>

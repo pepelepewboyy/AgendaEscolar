@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="#FAFAFA">
+
+    <!-- HEADER -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginTop="24dp">
+
+        <TextView
+            android:id="@+id/txtMensajes"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:fontFamily="@font/alatsi"
+            android:text="Mensajes"
+            android:textSize="24sp" />
+
+        <TextView
+            android:id="@+id/txtContadorNuevos"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_input_rounded"
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="4dp"
+            android:text="1 nuevos"
+            android:textSize="13sp"
+            android:fontFamily="@font/advent_pro" />
+
+    </LinearLayout>
+
+    <!-- LISTA DE MENSAJES (sin ScrollView, el scroll lo da el contenedor padre) -->
+    <LinearLayout
+        android:id="@+id/dynamicContainerMensajes"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginTop="16dp"
+        android:paddingHorizontal="24dp"
+        android:paddingBottom="16dp" />
+
+</LinearLayout>
