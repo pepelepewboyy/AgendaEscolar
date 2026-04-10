@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="8dp">
+        <Spinner
+            android:id="@+id/spnClases"
+            android:layout_width="175dp"
+            android:layout_height="40dp"
+            android:background="@drawable/bg_input_rounded"
+            android:fontFamily="@font/advent_pro" />
+        <TextView
+            android:layout_width="175dp"
+            android:layout_height="20dp"
+            android:text="Seleccione los días" />
+
+        <GridLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:columnCount="3"
+            android:foregroundGravity="center">
+
+            <CheckBox
+                android:id="@+id/cbLunes"
+                android:layout_width="85dp"
+                android:layout_height="40dp"
+                android:text="Lunes" />
+
+            <CheckBox
+                android:id="@+id/cbMartes"
+                android:layout_width="85dp"
+                android:layout_height="40dp"
+                android:text="Martes" />
+
+            <CheckBox
+                android:id="@+id/cbMiercoles"
+                android:layout_width="100dp"
+                android:layout_height="40dp"
+                android:text="Miércoles" />
+
+            <CheckBox
+                android:id="@+id/cbJueves"
+                android:layout_width="85dp"
+                android:layout_height="40dp"
+                android:text="Jueves" />
+
+            <CheckBox
+                android:id="@+id/cbViernes"
+                android:layout_width="85dp"
+                android:layout_height="40dp"
+                android:text="Viernes" />
+
+            <CheckBox
+                android:id="@+id/cbSabado"
+                android:text="Sábado" />
+        </GridLayout>
+
+        <EditText
+            android:id="@+id/inputHorarioInicio"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_input_rounded"
+            android:fontFamily="@font/advent_pro"
+            android:hint="horario (8:00 AM)"
+            android:inputType="text"
+            android:padding="12dp" />
+        <EditText
+            android:id="@+id/inputHorarioFin"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_input_rounded"
+            android:fontFamily="@font/advent_pro"
+            android:hint="horario (10:00 AM)"
+            android:inputType="text"
+            android:padding="12dp" />
+
+    </LinearLayout>
+</ScrollView>

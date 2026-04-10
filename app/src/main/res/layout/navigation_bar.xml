@@ -47,7 +47,7 @@
 
         </LinearLayout>
 
-        <!-- BOTON AGENDA (Antes Clases) -->
+        <!-- BOTON AGENDA (Antes Clase) -->
         <LinearLayout
             android:id="@+id/btnAgenda"
             android:layout_width="0dp"

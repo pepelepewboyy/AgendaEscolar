@@ -13,12 +13,20 @@
     <string name="txt_myAgenda">Mi Agenda</string>
     <string name="txt_date">Fecha</string>
     <string name="txt_selectDate">Seleccionar fecha:</string>
-    <string name="txt_contentDescription">Agregar tarea</string>
+    <string name="txt_contentDescription">Agregar clase</string>
+    <string name="txt_recordatorios">Recordatorios</string>
+    <string name="txt_contentDescription_add_recordatorio">Agregar recordatorio</string>
 
+    <string name="dialog_registrar_clase_title">Registrar clase</string>
+    <string name="dialog_registrar_recordatorio_title">Registrar recordatorio</string>
+    <string name="dialog_guardar">Guardar</string>
+    <string name="dialog_cancelar">Cancelar</string>
 
+    <string name="hint_titulo_recordatorio">Título del recordatorio</string>
+    <string name="hint_hora_recordatorio">Hora del recordatorio</string>
+    <string name="hint_prioridad">Recordatorio</string>
 
-
-
-
-
+    <string name="error_campos_obligatorios">Completa todos los campos para continuar.</string>
+    <string name="mensaje_clase_guardada">Clase guardada correctamente.</string>
+    <string name="mensaje_recordatorio_guardado">Recordatorio guardado correctamente.</string>
 </resources>

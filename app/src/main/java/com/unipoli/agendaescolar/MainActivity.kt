@@ -1,22 +1,47 @@
 package com.unipoli.agendaescolar
 
+import com.unipoli.agendaescolar.data.Recordatorio
+import com.unipoli.agendaescolar.data.Clase
+
+
 import android.annotation.SuppressLint
 import android.app.DatePickerDialog
 import android.os.Bundle
 import android.view.View
 import android.widget.Button
+
+import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.Switch
 import android.widget.TextView
+import android.widget.Toast
+import android.widget.ArrayAdapter
+import android.widget.Spinner
+import android.widget.CheckBox
+
+
+import android.app.DatePickerDialog
+import android.app.TimePickerDialog
+import android.graphics.Color
+
+
 import androidx.activity.enableEdgeToEdge
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.lifecycleScope
+import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.unipoli.agendaescolar.data.AppDatabase
+import com.unipoli.agendaescolar.data.Horario
+import kotlinx.coroutines.launch
+
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
+
 
 class MainActivity : AppCompatActivity() {
     @SuppressLint("CutPasteId")
@@ -35,9 +60,17 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        //*******DECLARACION DE VARIABLES (PANTALLA)*******//
+        val lblFecha = findViewById<TextView>(R.id.lblFecha)
         val containerClase = findViewById<LinearLayout>(R.id.containerClase)
 
 
+        //*******Obtener fecha*******//
+        val formato = SimpleDateFormat("EEEE, d 'de' MMMM 'de' yyyy", Locale("es", "ES"))
+        val fechaActual = formato.format(Date())
+        lblFecha.text = fechaActual.replaceFirstChar { it.uppercase() }
+
+        //*******CARGAR CONTENIDO INICIAL*******//
         if (containerClase != null) {
             cargarTextoAgenda(containerClase)
             cargarRecordatorios(containerClase)
@@ -118,16 +151,49 @@ class MainActivity : AppCompatActivity() {
         }
 
         btnAgenda?.setOnClickListener {
-            if (containerClase != null) {
-                containerClase.removeAllViews()
 
-                val viewAgenda = layoutInflater.inflate(R.layout.layout_agenda, containerClase, false)
-                containerClase.addView(viewAgenda)
+            // 1. Limpiar el contenedor principal
+            containerClase?.removeAllViews()
 
+            // 2. Inflar el layout de agenda (SIN attach todavía)
+            val viewAgenda = layoutInflater.inflate(
+                R.layout.layout_agenda,
+                containerClase,
+                false
+            )
+
+            // 3. Agregarlo al contenedor principal
+            containerClase?.addView(viewAgenda)
+
+            // 4. Obtener el contenedor dinámico DESDE viewAgenda
+            val dynamicContainer = viewAgenda.findViewById<LinearLayout>(R.id.dynamicContainer)
                 val dynamicContainer = viewAgenda.findViewById<LinearLayout>(R.id.dynamicContainer)
                 val btnPickerFecha = viewAgenda.findViewById<TextView>(R.id.btnPickerFecha)
 
 
+            // 5. Validar que sí existe
+            if (dynamicContainer == null) {
+                Toast.makeText(this, "Error: dynamicContainer no encontrado", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            // 6. Limpiar por si acaso
+            dynamicContainer.removeAllViews()
+
+            // 7. Inflar la card (IMPORTANTE: parent = dynamicContainer)
+            val cardAgenda = layoutInflater.inflate(
+                R.layout.card_clases_agenda,
+                dynamicContainer,
+                false
+            )
+
+            // 8. Agregar la card al contenedor dinámico
+            containerClase.addView(cardAgenda)
+
+            // Abrir dialogo en el boton de agregar horario
+            val btnHorario = viewAgenda.findViewById<FloatingActionButton>(R.id.btnAddHorario)
+            btnHorario?.setOnClickListener {
+                abrirDialogoHorario()
                 if (dynamicContainer != null) {
                     cargarClasesEn(dynamicContainer)
                 }
@@ -151,8 +217,42 @@ class MainActivity : AppCompatActivity() {
                     }, anio, mes, dia).show()
                 }
             }
-        }
 
+            //Abrir calendario en el picker
+            val btnPickerFecha = viewAgenda.findViewById<TextView>(R.id.btnPickerFecha)
+            btnPickerFecha?.setOnClickListener {
+                val calendar = Calendar.getInstance()
+
+                val year = calendar.get(Calendar.YEAR)
+                val month = calendar.get(Calendar.MONTH)
+                val day = calendar.get(Calendar.DAY_OF_MONTH)
+
+                val datePicker = DatePickerDialog(
+                    this,
+                    { _, selectedYear, selectedMonth, selectedDay ->
+
+                        // ⚠️ El mes empieza en 0, por eso se suma 1
+                        val fechaSeleccionada = String.format(
+                            "%02d/%02d/%04d",
+                            selectedDay,
+                            selectedMonth + 1,
+                            selectedYear
+                        )
+
+                        btnPickerFecha.text = fechaSeleccionada
+
+                    },
+                    year,
+                    month,
+                    day
+                )
+
+                datePicker.show()
+            }
+
+
+
+        }
         btnInicio?.setOnClickListener {
             containerClase.removeAllViews()
             cargarTextoAgenda(containerClase)
@@ -162,26 +262,47 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun cargarClasesEn(contenedorDestino: LinearLayout) {
+
+
         val cardSeccion = layoutInflater.inflate(R.layout.card_clases, contenedorDestino, false)
         val containerClases = cardSeccion.findViewById<LinearLayout>(R.id.containerClases)
+        val btnAddClase = cardSeccion.findViewById<TextView>(R.id.btnAddClase)
 
-        val clases = listOf(
-            Triple("Calculo multivariable", "Prof. Ibarra", "8:00 AM"),
-            Triple("Etica profesional", "Prof. Carmona", "9:30 AM"),
-            Triple("Desarrollo de aplicaciones", "Prof. Duarte", "12:00 PM"),
-            Triple("Redes", "Prof. Garcia", "2:00 PM"),
-            Triple("Bases de datos", "Prof. Mendoza", "4:00 PM")
-        )
+        btnAddClase.setOnClickListener {
+            abrirDialogoClases()
+        }
 
-        if (containerClases != null) {
-            for (clase in clases) {
+        val db = AppDatabase.getDatabase(this)
+        val horarioDao = db.horarioDao()
+
+        val diaActual = obtenerDiaActual() // 🔥 AQUÍ
+
+        lifecycleScope.launch {
+
+            val lista = horarioDao.getClasesPorDia(diaActual)
+
+            containerClases.removeAllViews()
+
+            if (lista.isEmpty()) {
+                val txt = TextView(this@MainActivity)
+                txt.text = "No hay clases para hoy ($diaActual)"
+                containerClases.addView(txt)
+                return@launch
+            }
+
+            lista.forEach { clase ->
+
                 val card = layoutInflater.inflate(R.layout.card_clase, containerClases, false)
-                card.findViewById<TextView>(R.id.txtMateria)?.text = clase.first
-                card.findViewById<TextView>(R.id.txtProfesor)?.text = clase.second
-                card.findViewById<TextView>(R.id.txtHora)?.text = clase.third
+
+                card.findViewById<TextView>(R.id.txtMateria).text = clase.titulo
+                card.findViewById<TextView>(R.id.txtProfesor).text = clase.profesor
+                card.findViewById<TextView>(R.id.txtHora).text =
+                    "${clase.horaInicio} - ${clase.horaFin}"
+
                 containerClases.addView(card)
             }
         }
+
         contenedorDestino.addView(cardSeccion)
     }
 
@@ -199,25 +320,404 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun cargarRecordatorios(contenedorDestino: LinearLayout) {
-        val cardRecordatorios = layoutInflater.inflate(R.layout.card_recordatorios, contenedorDestino, false)
-        val containerRecordatorios = cardRecordatorios.findViewById<LinearLayout>(R.id.containerRecordatorios)
 
-        val recordatorios = listOf(
-            Pair("Recordatorio 1", "12:00 PM"),
-            Pair("Recordatorio 2", "1:00 PM"),
-            Pair("Recordatorio 3", "2:00 PM"),
-            Pair("Recordatorio 4", "3:00 PM")
+        val cardRecordatorios = layoutInflater.inflate(
+            R.layout.card_recordatorios,
+            contenedorDestino,
+            false
         )
 
-        if (containerRecordatorios != null) {
-            for (recordatorio in recordatorios) {
-                val card = layoutInflater.inflate(R.layout.card_recordatorio, containerRecordatorios, false)
-                card.findViewById<TextView>(R.id.txtTituloRecordatorio)?.text = recordatorio.first
-                card.findViewById<TextView>(R.id.txtFechaRecordatorio)?.text = recordatorio.second
+        val containerRecordatorios = cardRecordatorios.findViewById<LinearLayout>(R.id.containerRecordatorios)
+        val btnAddRecordatorio = cardRecordatorios.findViewById<TextView>(R.id.btnAddRecordatorio)
+
+        contenedorDestino.removeAllViews()
+        contenedorDestino.addView(cardRecordatorios)
+        val db = AppDatabase.getDatabase(this)
+        val dao = db.recordatorioDao()
+        fun render(lista: List<Recordatorio>) {
+            containerRecordatorios.removeAllViews()
+
+            lista.forEach { recordatorio ->
+                val card = layoutInflater.inflate(
+                    R.layout.card_recordatorio,
+                    containerRecordatorios,
+                    false
+                )
+
+                card.findViewById<TextView>(R.id.txtTituloRecordatorio).text = recordatorio.titulo
+                card.findViewById<TextView>(R.id.txtFechaRecordatorio).text = recordatorio.fecha
+                card.findViewById<TextView>(R.id.txtHoraRecordatorio).text = recordatorio.hora
+
                 containerRecordatorios.addView(card)
             }
         }
-        contenedorDestino.addView(cardRecordatorios)
+
+        // 🔥 CARGA INICIAL
+        lifecycleScope.launch {
+            val lista = dao.getAllRecordatorios()
+            render(lista)
+        }
+
+        // 🔥 BOTÓN
+        btnAddRecordatorio.setOnClickListener {
+
+            val dialogView = layoutInflater.inflate(R.layout.dialog_registrar_recordatorio, null)
+
+            val edtTitulo = dialogView.findViewById<EditText>(R.id.inputTituloRecordatorio)
+            val edtHora = dialogView.findViewById<EditText>(R.id.inputHoraRecordatorio)
+            val edtFecha = dialogView.findViewById<EditText>(R.id.inputFechaRecordatorio)
+            val edtPrioridad = dialogView.findViewById<Spinner>(R.id.inputPrioridad)
+
+            val calendar = Calendar.getInstance()
+
+            edtFecha.inputType = 0
+            edtFecha.isFocusable = false
+            edtHora.inputType = 0
+            edtHora.isFocusable = false
+
+            edtFecha.setOnClickListener {
+                val datePicker = DatePickerDialog(
+                    this,
+                    { _, year, month, day ->
+                        val fecha = String.format("%02d/%02d/%04d", day, month + 1, year)
+                        edtFecha.setText(fecha)
+                        calendar.set(year, month, day)
+                    },
+                    calendar.get(Calendar.YEAR),
+                    calendar.get(Calendar.MONTH),
+                    calendar.get(Calendar.DAY_OF_MONTH)
+                )
+                datePicker.show()
+            }
+
+            edtHora.setOnClickListener {
+                val timePicker = TimePickerDialog(
+                    this,
+                    { _, hour, minute ->
+                        val hora = String.format("%02d:%02d", hour, minute)
+                        edtHora.setText(hora)
+                    },
+                    calendar.get(Calendar.HOUR_OF_DAY),
+                    calendar.get(Calendar.MINUTE),
+                    true
+                )
+                timePicker.show()
+            }
+
+            val opciones = listOf("Selecciona la prioridad", "Alta", "Media", "Baja")
+            val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, opciones)
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            edtPrioridad.adapter = adapter
+
+            val dialog = AlertDialog.Builder(this)
+                .setTitle("Registrar Recordatorio")
+                .setView(dialogView)
+                .setPositiveButton("Guardar", null)
+                .setNegativeButton("Cancelar", null)
+                .create()
+
+            dialog.show()
+
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+
+                val titulo = edtTitulo.text.toString().trim()
+                val hora = edtHora.text.toString().trim()
+                val fecha = edtFecha.text.toString().trim()
+                val prioridad = edtPrioridad.selectedItem.toString()
+
+                if (titulo.isNotEmpty() && hora.isNotEmpty() && fecha.isNotEmpty() && edtPrioridad.selectedItemPosition > 0) {
+
+                    val recordatorio = Recordatorio(
+                        titulo = titulo,
+                        fecha = fecha,
+                        hora = hora,
+                        prioridad = prioridad
+                    )
+
+                    lifecycleScope.launch {
+                        dao.insertRecordatorio(recordatorio)
+
+                        // 🔥 RECARGAR DESDE BD
+                        val lista = dao.getAllRecordatorios()
+                        render(lista)
+                    }
+
+                    dialog.dismiss()
+
+                } else {
+                    Toast.makeText(
+                        this,
+                        "Completa todos los campos",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+        }
+    }
+    private fun abrirDialogoClases(){
+        val db = AppDatabase.getDatabase(this)
+        val dao = db.clasesDao()
+
+        val dialogView = layoutInflater.inflate(R.layout.dialog_registrar_clase, null)
+        val dialog = AlertDialog.Builder(this)
+            .setTitle("Registrar Clase")
+            .setView(dialogView)
+            .setPositiveButton("Guardar", null)
+            .setNegativeButton("Cancelar", null)
+            .create()
+        dialog.show()
+
+        val edtMateria = dialogView.findViewById<EditText>(R.id.inputNombreClase)
+        val edtDocente = dialogView.findViewById<EditText>(R.id.inputDocente)
+
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+            val docente = edtDocente.text.toString().trim()
+            val clase = edtMateria.text.toString().trim()
+
+            if (clase.isNotEmpty() && docente.isNotEmpty()) {
+                val newclase = Clase(
+                    titulo = clase,
+                    profesor = docente
+                )
+                lifecycleScope.launch {
+                    dao.insertclase(newclase)
+                }
+
+                dialog.dismiss()
+            } else {
+                Toast.makeText(
+                    this,
+                    "Completa todos los campos",
+                    Toast.LENGTH_SHORT
+                ).show()
+
+            }
+
+        }
+
+    }
+
+    private fun abrirDialogoHorario() {
+
+        val db = AppDatabase.getDatabase(this)
+        val daoClase = db.clasesDao()
+        val daoHorario = db.horarioDao()
+
+        val dialogView = layoutInflater.inflate(R.layout.dialog_registrar_horario, null)
+
+        val spinner = dialogView.findViewById<Spinner>(R.id.spnClases)
+        val inputInicio = dialogView.findViewById<EditText>(R.id.inputHorarioInicio)
+        val inputFin = dialogView.findViewById<EditText>(R.id.inputHorarioFin)
+
+        val cbLunes = dialogView.findViewById<CheckBox>(R.id.cbLunes)
+        val cbMartes = dialogView.findViewById<CheckBox>(R.id.cbMartes)
+        val cbMiercoles = dialogView.findViewById<CheckBox>(R.id.cbMiercoles)
+        val cbJueves = dialogView.findViewById<CheckBox>(R.id.cbJueves)
+        val cbViernes = dialogView.findViewById<CheckBox>(R.id.cbViernes)
+        val cbSabado = dialogView.findViewById<CheckBox>(R.id.cbSabado)
+
+        // 🔒 bloquear escritura manual
+        inputInicio.inputType = 0
+        inputInicio.isFocusable = false
+
+        inputFin.inputType = 0
+        inputFin.isFocusable = false
+
+        val calendar = Calendar.getInstance()
+
+        // ⏰ TIME PICKER INICIO
+        inputInicio.setOnClickListener {
+            TimePickerDialog(
+                this,
+                { _, hour, minute ->
+                    inputInicio.setText(String.format("%02d:%02d", hour, minute))
+                },
+                calendar.get(Calendar.HOUR_OF_DAY),
+                calendar.get(Calendar.MINUTE),
+                true
+            ).show()
+        }
+
+        // ⏰ TIME PICKER FIN
+        inputFin.setOnClickListener {
+            TimePickerDialog(
+                this,
+                { _, hour, minute ->
+                    inputFin.setText(String.format("%02d:%02d", hour, minute))
+                },
+                calendar.get(Calendar.HOUR_OF_DAY),
+                calendar.get(Calendar.MINUTE),
+                true
+            ).show()
+        }
+
+        // 🔥 cargar clases
+        lifecycleScope.launch {
+            val lista = daoClase.getAllClases()
+
+            if (lista.isEmpty()) {
+                Toast.makeText(this@MainActivity, "No hay clases registradas", Toast.LENGTH_SHORT).show()
+                return@launch
+            }
+
+            val adapter = ArrayAdapter(
+                this@MainActivity,
+                android.R.layout.simple_spinner_item,
+                lista
+            )
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            spinner.adapter = adapter
+        }
+
+        val dialog = AlertDialog.Builder(this)
+            .setTitle("Registrar Horario")
+            .setView(dialogView)
+            .setPositiveButton("Guardar", null)
+            .setNegativeButton("Cancelar", null)
+            .create()
+
+        dialog.show()
+
+        // 🔥 función segura
+        fun toMinutos(hora: String): Int? {
+            return try {
+                val partes = hora.split(":")
+                if (partes.size != 2) return null
+                partes[0].toInt() * 60 + partes[1].toInt()
+            } catch (e: Exception) {
+                null
+            }
+        }
+
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+
+            val claseSeleccionada = spinner.selectedItem as? Clase
+            if (claseSeleccionada == null) {
+                Toast.makeText(this, "Selecciona una clase", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            val horaInicio = inputInicio.text.toString().trim()
+            val horaFin = inputFin.text.toString().trim()
+
+            if (horaInicio.isEmpty() || horaFin.isEmpty()) {
+                Toast.makeText(this, "Selecciona horario", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            val inicioMin = toMinutos(horaInicio)
+            val finMin = toMinutos(horaFin)
+
+            if (inicioMin == null || finMin == null) {
+                Toast.makeText(this, "Formato de hora inválido", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            if (finMin <= inicioMin) {
+                Toast.makeText(this, "La hora fin debe ser mayor que inicio", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            val dias = mutableListOf<String>()
+            if (cbLunes.isChecked) dias.add("Lunes")
+            if (cbMartes.isChecked) dias.add("Martes")
+            if (cbMiercoles.isChecked) dias.add("Miércoles")
+            if (cbJueves.isChecked) dias.add("Jueves")
+            if (cbViernes.isChecked) dias.add("Viernes")
+            if (cbSabado.isChecked) dias.add("Sábado")
+
+            if (dias.isEmpty()) {
+                Toast.makeText(this, "Selecciona al menos un día", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            lifecycleScope.launch {
+
+                for (dia in dias) {
+
+                    val existentes = daoHorario.getHorariosPorDia(dia)
+
+                    val conflicto = existentes.any {
+                        val iniExist = toMinutos(it.horaInicio) ?: return@any false
+                        val finExist = toMinutos(it.horaFin) ?: return@any false
+
+                        inicioMin < finExist && finMin > iniExist
+                    }
+
+                    if (conflicto) {
+                        Toast.makeText(
+                            this@MainActivity,
+                            "Conflicto de horario en $dia",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        return@launch
+                    }
+
+                    val horario = Horario(
+                        idClase = claseSeleccionada.id,
+                        dia = dia,
+                        horaInicio = horaInicio,
+                        horaFin = horaFin
+                    )
+
+                    daoHorario.insertHorario(horario)
+                }
+
+                Toast.makeText(this@MainActivity, "Horario guardado", Toast.LENGTH_SHORT).show()
+                dialog.dismiss()
+            }
+        }
+    }
+
+    private fun obtenerDiaActual(): String {
+        val dias = arrayOf("Domingo","Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado")
+        val calendar = Calendar.getInstance()
+        return dias[calendar.get(Calendar.DAY_OF_WEEK)-1]
+    }
+    private fun obtenerDiaDesdeFecha(calendar: Calendar): String {
+        val formato = SimpleDateFormat("EEEE", Locale("es", "ES"))
+        val dia = formato.format(calendar.time)
+        return dia.replaceFirstChar { it.uppercase() }
+    }
+    private fun cargarClasesPorDia(contenedorDestino: LinearLayout, dia: String) {
+
+        val cardSeccion = layoutInflater.inflate(R.layout.card_clases, contenedorDestino, false)
+        val containerClases = cardSeccion.findViewById<LinearLayout>(R.id.containerClases)
+
+        val db = AppDatabase.getDatabase(this)
+        val horarioDao = db.horarioDao()
+
+        contenedorDestino.removeAllViews()
+
+        lifecycleScope.launch {
+
+            val lista = horarioDao.getClasesPorDia(dia)
+
+            containerClases.removeAllViews()
+
+            if (lista.isEmpty()) {
+                val txt = TextView(this@MainActivity)
+                txt.text = "No hay clases para $dia"
+                containerClases.addView(txt)
+            } else {
+                lista.forEach { clase ->
+
+                    val card = layoutInflater.inflate(R.layout.card_clase, containerClases, false)
+
+                    card.findViewById<TextView>(R.id.txtMateria).text = clase.titulo
+                    card.findViewById<TextView>(R.id.txtProfesor).text = clase.profesor
+                    card.findViewById<TextView>(R.id.txtHora).text =
+                        "${clase.horaInicio} - ${clase.horaFin}"
+
+                    containerClases.addView(card)
+                }
+            }
+        }
+
+        contenedorDestino.addView(cardSeccion)
+    }
+
+
     }
     private fun cargarMensajes(contenedorDestino: LinearLayout) {
         val mensajes = listOf(
