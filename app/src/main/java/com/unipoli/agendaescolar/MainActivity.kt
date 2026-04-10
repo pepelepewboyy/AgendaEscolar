@@ -7,7 +7,6 @@ import com.unipoli.agendaescolar.data.Clase
 import android.annotation.SuppressLint
 import android.app.DatePickerDialog
 import android.os.Bundle
-import android.view.View
 import android.widget.Button
 
 import android.widget.EditText
@@ -20,9 +19,7 @@ import android.widget.Spinner
 import android.widget.CheckBox
 
 
-import android.app.DatePickerDialog
 import android.app.TimePickerDialog
-import android.graphics.Color
 
 
 import androidx.activity.enableEdgeToEdge
@@ -84,13 +81,7 @@ class MainActivity : AppCompatActivity() {
         val btnAsistencia = findViewById<LinearLayout>(R.id.btnAsistencia)
         val btnConfig = findViewById<LinearLayout>(R.id.btnConfig)
 
-        btnMensajes?.setOnClickListener {
-            containerClase?.removeAllViews()
-            val view = layoutInflater.inflate(R.layout.layout_mensajes, containerClase, false)
-            containerClase?.addView(view)
-            val dynamicContainer = view.findViewById<LinearLayout>(R.id.dynamicContainerMensajes)
-            if (dynamicContainer != null) cargarMensajes(dynamicContainer)
-        }
+
 
         btnAsistencia?.setOnClickListener {
             containerClase?.removeAllViews()
@@ -166,7 +157,6 @@ class MainActivity : AppCompatActivity() {
             containerClase?.addView(viewAgenda)
 
             // 4. Obtener el contenedor dinámico DESDE viewAgenda
-            val dynamicContainer = viewAgenda.findViewById<LinearLayout>(R.id.dynamicContainer)
                 val dynamicContainer = viewAgenda.findViewById<LinearLayout>(R.id.dynamicContainer)
                 val btnPickerFecha = viewAgenda.findViewById<TextView>(R.id.btnPickerFecha)
 
@@ -218,8 +208,10 @@ class MainActivity : AppCompatActivity() {
                 }
             }
 
-            //Abrir calendario en el picker
-            val btnPickerFecha = viewAgenda.findViewById<TextView>(R.id.btnPickerFecha)
+            val clasesDia = cardAgenda.findViewById<LinearLayout>(R.id.containerClasesAgenda)
+
+
+            //Abrir calendario en el picker de fecha
             btnPickerFecha?.setOnClickListener {
                 val calendar = Calendar.getInstance()
 
@@ -231,7 +223,18 @@ class MainActivity : AppCompatActivity() {
                     this,
                     { _, selectedYear, selectedMonth, selectedDay ->
 
-                        // ⚠️ El mes empieza en 0, por eso se suma 1
+                        // 📅 Crear calendario con la fecha seleccionada
+                        val calendarioSeleccionado = Calendar.getInstance()
+                        calendarioSeleccionado.set(selectedYear, selectedMonth, selectedDay)
+
+                        // 📆 Obtener nombre del día (Lunes, Martes, etc.)
+                        val formatoDia = SimpleDateFormat("EEEE", Locale("es", "ES"))
+                        var diaSemana = formatoDia.format(calendarioSeleccionado.time)
+
+                        // Capitalizar (opcional pero recomendable)
+                        diaSemana = diaSemana.replaceFirstChar { it.uppercase() }
+
+                        // 📅 Formato de fecha
                         val fechaSeleccionada = String.format(
                             "%02d/%02d/%04d",
                             selectedDay,
@@ -239,7 +242,11 @@ class MainActivity : AppCompatActivity() {
                             selectedYear
                         )
 
-                        btnPickerFecha.text = fechaSeleccionada
+                        // Mostrar en botón
+                        btnPickerFecha.text = "$fechaSeleccionada - $diaSemana"
+                        Toast.makeText(this, "Día: $diaSemana", Toast.LENGTH_SHORT).show()
+                        // 🔥 AQUÍ ya puedes usarlo para tu lógica
+                        cargarClasesPorDia(clasesDia, diaSemana)
 
                     },
                     year,
@@ -249,6 +256,7 @@ class MainActivity : AppCompatActivity() {
 
                 datePicker.show()
             }
+
 
 
 
@@ -719,28 +727,3 @@ class MainActivity : AppCompatActivity() {
 
 
     }
-    private fun cargarMensajes(contenedorDestino: LinearLayout) {
-        val mensajes = listOf(
-            listOf("Reunión de padres de familia", "Importante", "Se les convoca a la reunión de padres de familia el próximo viernes 6 de octubre a las 4:00 PM en el aula múltiple. Es importante su asistencia.", "Domingo, 5 de octubre de 2025  8:00", true),
-            listOf("Día de uniforme deportivo", "Informado", "Recuerden que el lunes 7 de septiembre es día de uniforme deportivo para todas las actividades escolares.", "Domingo, 5 de septiembre de 2025  17:54", false),
-            listOf("Suspensión de clases", "Urgente", "Debido a las condiciones climáticas, las clases del martes 5 de agosto quedan suspendidas. Se retomarán el miércoles normalmente.", "Viernes, 1 de agosto de 2025  16:58", false),
-            listOf("Proyecto de ciencias", "Informado", "Los estudiantes de 3ro grado deben entregar el proyecto de ciencias naturales antes del viernes. Pueden consultar dudas con su maestro.", "Jueves, 25 de julio de 2025  19:34", false),
-            listOf("Celebración día del maestro", "Evento", "El próximo viernes celebraremos el día del maestro con actividades especiales. Los estudiantes pueden venir con ropa casual.", "Viernes, 6 de mayo de 2025  14:56", false)
-        )
-
-        for (mensaje in mensajes) {
-            val card = layoutInflater.inflate(R.layout.card_mensaje, contenedorDestino, false)
-            card.findViewById<TextView>(R.id.txtTituloMensaje)?.text = mensaje[0] as String
-            card.findViewById<TextView>(R.id.txtBadgeMensaje)?.text = mensaje[1] as String
-            card.findViewById<TextView>(R.id.txtDescripcionMensaje)?.text = mensaje[2] as String
-            card.findViewById<TextView>(R.id.txtFechaMensaje)?.text = mensaje[3] as String
-
-
-            val noLeido = mensaje[4] as Boolean
-            card.findViewById<View>(R.id.indicadorNoLeido)?.visibility =
-                if (noLeido) View.VISIBLE else View.GONE
-
-            contenedorDestino.addView(card)
-        }
-    }
-}
