@@ -15,5 +15,8 @@ data class Clase(
 
     @ColumnInfo(name = "profesor")
     val profesor: String
-
-)
+){
+    override fun toString(): String {
+        return titulo
+    }
+}

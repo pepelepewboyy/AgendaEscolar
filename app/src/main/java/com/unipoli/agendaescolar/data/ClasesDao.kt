@@ -20,5 +20,5 @@ interface ClasesDao {
     @Query("""
         SELECT * FROM clases
     """)
-    suspend fun getAllclases(): List<Clase>
+    suspend fun getAllClases(): List<Clase>
 }

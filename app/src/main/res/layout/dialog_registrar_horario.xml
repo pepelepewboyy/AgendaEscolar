@@ -63,13 +63,23 @@
         </GridLayout>
 
         <EditText
-            android:id="@+id/inputHorario"
+            android:id="@+id/inputHorarioInicio"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
             android:background="@drawable/bg_input_rounded"
             android:fontFamily="@font/advent_pro"
-            android:hint="horario (ej. 8:00 AM - 10:00 AM)"
+            android:hint="horario (8:00 AM)"
+            android:inputType="text"
+            android:padding="12dp" />
+        <EditText
+            android:id="@+id/inputHorarioFin"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_input_rounded"
+            android:fontFamily="@font/advent_pro"
+            android:hint="horario (10:00 AM)"
             android:inputType="text"
             android:padding="12dp" />
 
