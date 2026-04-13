@@ -75,33 +75,6 @@
 
         </LinearLayout>
 
-        <!-- BOTON MENSAJES -->
-        <LinearLayout
-            android:id="@+id/btnMensajes"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            android:gravity="center"
-            android:clickable="true"
-            android:focusable="true"
-            android:background="?attr/selectableItemBackground">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/free_regular"
-                android:text="@string/ic_messages"
-                android:textSize="20sp"/>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/txt_messages"
-                android:textSize="12sp"
-                android:fontFamily="@font/advent_pro"/>
-
-        </LinearLayout>
 
         <!-- BOTON ASISTENCIA -->
         <LinearLayout
@@ -132,7 +105,7 @@
         </LinearLayout>
 
         <!-- BOTON CONFIG -->
-        <LinearLayout
+        <!--<LinearLayout
             android:id="@+id/btnConfig"
             android:layout_width="0dp"
             android:layout_height="match_parent"
@@ -157,7 +130,7 @@
                 android:textSize="12sp"
                 android:fontFamily="@font/advent_pro"/>
 
-        </LinearLayout>
+        </LinearLayout>-->-
 
     </LinearLayout>
 

@@ -17,9 +17,14 @@ import android.widget.Toast
 import android.widget.ArrayAdapter
 import android.widget.Spinner
 import android.widget.CheckBox
+import android.widget.AdapterView
 
+import com.unipoli.agendaescolar.data.AppDatabase
+import com.unipoli.agendaescolar.data.Asistencia
+import com.unipoli.agendaescolar.data.Horario
 
 import android.app.TimePickerDialog
+import android.view.View
 
 
 import androidx.activity.enableEdgeToEdge
@@ -30,8 +35,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.unipoli.agendaescolar.data.AppDatabase
-import com.unipoli.agendaescolar.data.Horario
+
 import kotlinx.coroutines.launch
 
 import java.text.SimpleDateFormat
@@ -77,45 +81,147 @@ class MainActivity : AppCompatActivity() {
 
         val btnInicio = findViewById<LinearLayout>(R.id.btnInicio)
         val btnAgenda = findViewById<LinearLayout>(R.id.btnAgenda)
-        val btnMensajes = findViewById<LinearLayout>(R.id.btnMensajes)
         val btnAsistencia = findViewById<LinearLayout>(R.id.btnAsistencia)
-        val btnConfig = findViewById<LinearLayout>(R.id.btnConfig)
+        //val btnConfig = findViewById<LinearLayout>(R.id.btnConfig)
 
 
 
         btnAsistencia?.setOnClickListener {
+
             containerClase?.removeAllViews()
             val view = layoutInflater.inflate(R.layout.layout_asistencia, containerClase, false)
             containerClase?.addView(view)
 
-
-            val btnPickerHistorial = view.findViewById<TextView>(R.id.btnPickerHistorial)
-            btnPickerHistorial?.setOnClickListener {
-                val calendar = Calendar.getInstance()
-                DatePickerDialog(this, { _, anio, mes, dia ->
-                    btnPickerHistorial.text = "%02d/%02d/%d".format(dia, mes + 1, anio)
-
-                }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH)).show()
-            }
-
+            val spinnerMaterias = view.findViewById<Spinner>(R.id.spnMostrarMaterias)
+            val txtPresentes = view.findViewById<TextView>(R.id.txtDiasPresentes)
+            val txtFaltas = view.findViewById<TextView>(R.id.txtFaltas)
+            val txtPorcentaje = view.findViewById<TextView>(R.id.txtPorcentaje)
 
             val btnPresente = view.findViewById<Button>(R.id.btnPresente)
             val btnAusente = view.findViewById<Button>(R.id.btnAusente)
 
-            btnPresente?.setOnClickListener {
-                btnPresente.backgroundTintList = android.content.res.ColorStateList.valueOf(android.graphics.Color.BLACK)
-                btnAusente.backgroundTintList = android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#EEEEEE"))
+            val db = AppDatabase.getDatabase(this)
+            val clasesDao = db.clasesDao()
+            val asistenciaDao = db.asistenciaDao()
+
+            // 🔥 VARIABLE GLOBAL DEL BLOQUE (IMPORTANTE)
+            var claseSeleccionada: Clase? = null
+
+            lifecycleScope.launch {
+
+                val listaClases = clasesDao.getAllClases()
+                val nombres = listaClases.map { it.titulo }
+
+                val adapter = ArrayAdapter(
+                    this@MainActivity,
+                    android.R.layout.simple_spinner_item,
+                    nombres
+                )
+                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+
+                spinnerMaterias.adapter = adapter
+
+                spinnerMaterias.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+
+                    override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
+
+                        // 🔥 GUARDAR LA CLASE SELECCIONADA
+                        claseSeleccionada = listaClases[position]
+
+                        lifecycleScope.launch {
+
+                            val lista = asistenciaDao.getAsistenciaPorClase(claseSeleccionada!!.id)
+
+                            val faltas = lista.count { it.estado.lowercase() == "falta" }
+                            val presentes = lista.count { it.estado.lowercase() != "falta" }
+
+                            val total = lista.size
+
+                            txtFaltas.text = faltas.toString()
+                            txtPresentes.text = presentes.toString()
+
+                            if (total == 0) {
+                                txtPorcentaje.text = "No hay registros"
+                            } else {
+                                val porcentaje = (presentes * 100.0) / total
+                                txtPorcentaje.text = "%.2f%%".format(porcentaje)
+                            }
+                        }
+                    }
+
+                    override fun onNothingSelected(parent: AdapterView<*>) {}
+                }
             }
 
-            btnAusente?.setOnClickListener {
+            // 🔥 FUNCIÓN PARA GUARDAR
+            fun guardarAsistencia(estado: String) {
+
+                val clase = claseSeleccionada
+
+                if (clase == null) {
+                    Toast.makeText(this, "Selecciona una materia", Toast.LENGTH_SHORT).show()
+                    return
+                }
+
+                val fecha = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+                    .format(Date())
+
+                lifecycleScope.launch {
+
+                    val asistencia = Asistencia(
+                        idClase = clase.id,
+                        fecha = fecha,
+                        estado = estado
+                    )
+
+                    asistenciaDao.insertAsistencia(asistencia)
+
+                    Toast.makeText(this@MainActivity, "Asistencia guardada", Toast.LENGTH_SHORT).show()
+
+                    // 🔥 refrescar stats
+                    val lista = asistenciaDao.getAsistenciaPorClase(clase.id)
+
+                    val faltas = lista.count { it.estado.lowercase() == "falta" }
+                    val presentes = lista.count { it.estado.lowercase() != "falta" }
+
+                    val total = lista.size
+
+                    txtFaltas.text = faltas.toString()
+                    txtPresentes.text = presentes.toString()
+
+                    if (total == 0) {
+                        txtPorcentaje.text = "No hay registros"
+                    } else {
+                        val porcentaje = (presentes * 100.0) / total
+                        txtPorcentaje.text = "%.2f%%".format(porcentaje)
+                    }
+                }
+            }
+
+            // 🔥 BOTONES CONECTADOS
+            btnPresente.setOnClickListener {
+
+                guardarAsistencia("Presente")
+
+                btnPresente.backgroundTintList = android.content.res.ColorStateList.valueOf(android.graphics.Color.BLACK)
+                btnPresente.setTextColor(android.graphics.Color.WHITE)
+
+                btnAusente.backgroundTintList = android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#EEEEEE"))
+                btnAusente.setTextColor(android.graphics.Color.BLACK)
+            }
+
+            btnAusente.setOnClickListener {
+
+                guardarAsistencia("Falta")
+
                 btnAusente.backgroundTintList = android.content.res.ColorStateList.valueOf(android.graphics.Color.BLACK)
                 btnAusente.setTextColor(android.graphics.Color.WHITE)
+
                 btnPresente.backgroundTintList = android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#EEEEEE"))
                 btnPresente.setTextColor(android.graphics.Color.BLACK)
             }
         }
-
-        btnConfig?.setOnClickListener {
+        /*btnConfig?.setOnClickListener {
             containerClase?.removeAllViews()
             val view = layoutInflater.inflate(R.layout.layout_configuracion, containerClase, false)
             containerClase?.addView(view)
@@ -140,7 +246,7 @@ class MainActivity : AppCompatActivity() {
 
             }
         }
-
+*/
         btnAgenda?.setOnClickListener {
 
             // 1. Limpiar el contenedor principal
